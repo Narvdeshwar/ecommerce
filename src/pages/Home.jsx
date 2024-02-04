@@ -11,22 +11,22 @@ import {
   CardActions,
   Button,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-
+import { addToCart } from "../features/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllProducts } from "../features/productSlice";
 export default function Home() {
+  const dispatch = useDispatch();
   const theme = useTheme();
-  const [products, setProducts] = useState([]);
-
-  async function fetchAllProducts() {
-    const response = await fetch("https://fakestoreapi.com/products");
-    const result = await response.json();
-    setProducts(result);
+  const state = useSelector((state) => state.products);
+  const { value: products, loading } = state ?? {};
+  if (!products?.length) {
+    dispatch(fetchAllProducts());
   }
 
-  useEffect(() => {
-    fetchAllProducts();
-  }, []);
-
+  const addProductToCart = (product) => {
+    // dispatch an action
+    dispatch(addToCart({ product, quantity: 1 }));
+  };
   return (
     <Container sx={{ py: 8 }} maxWidth="lg">
       <Grid container spacing={4}>
@@ -80,7 +80,19 @@ export default function Home() {
                 <Rating readOnly precision={0.5} value={rating.rate}></Rating>
               </CardContent>
               <CardActions sx={{ alignSelf: "center" }}>
-                <Button variant="contained">
+                <Button
+                  variant="contained"
+                  onClick={() =>
+                    addProductToCart({
+                      image,
+                      id,
+                      title,
+                      description,
+                      price,
+                      rating,
+                    })
+                  }
+                >
                   <ShoppingCartSharp />
                   Add to bag
                 </Button>

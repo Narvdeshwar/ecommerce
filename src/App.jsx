@@ -8,7 +8,8 @@ import Layout from "./components/Layout";
 import Home from './pages/Home';
 import Login from "./pages/Login";
 import Cart from "./pages/Cart";
-
+import { Provider } from "react-redux";
+import store from './store'
 //routes
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -20,8 +21,8 @@ const router = createBrowserRouter(
 
 export default function App() {
   return (
-    <div>
+    <Provider store={store}>
       <RouterProvider router={router} />
-    </div>
+    </Provider>
   );
 }
