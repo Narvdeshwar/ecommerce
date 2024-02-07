@@ -12,9 +12,10 @@ import {
   MenuItem,
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getItemCount } from "../utils";
 import { styled, alpha } from "@mui/material/styles";
+import { fetchAllCategories } from "../features/categorySlice";
 const Search = styled("section")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -27,6 +28,14 @@ const Search = styled("section")(({ theme }) => ({
 }));
 function SearchBar() {
   const products = useSelector((state) => state.products.value);
+  const state = useSelector((state) => state.categories.value);
+  const dispatch = useDispatch();
+  const { value: categories } = state ?? {};
+
+  if (!categories?.length) {
+    dispatch(fetchAllCategories());
+  }
+
   return (
     <Search>
       <Select
@@ -36,20 +45,29 @@ function SearchBar() {
         labelId="selected-Category"
         id="selected-category-id"
       >
-        <MenuItem>all</MenuItem>
+        <MenuItem key="all" value="all">all</MenuItem>
+        {
+          categories.map((category) => (
+            <MenuItem key={category} value={category}>
+              {category}
+            </MenuItem>
+            )
+          )
+        }
       </Select>
       <Autocomplete
         id="combo-box-demo"
-        options={Array.from(products, (prod) => ({
+        options={products ? Array.from(products, (prod) => ({
           id: prod.id,
           label: prod.title,
-        }))}
+        })) : []}
         sx={{ width: 300 }}
         renderInput={(params) => <TextField {...params} label="products" />}
       />
     </Search>
   );
 }
+
 export default function Header() {
   const cartItems = useSelector((state) => state.cart?.value);
   const count = getItemCount(cartItems);

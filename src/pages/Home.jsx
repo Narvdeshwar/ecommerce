@@ -18,7 +18,7 @@ export default function Home() {
   const dispatch = useDispatch();
   const theme = useTheme();
   const state = useSelector((state) => state.products);
-  const { value: products, loading } = state ?? {};
+  const { value: products } = state ?? {};
   if (!products?.length) {
     dispatch(fetchAllProducts());
   }
