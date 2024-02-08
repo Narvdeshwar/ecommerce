@@ -16,6 +16,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getItemCount } from "../utils";
 import { styled, alpha } from "@mui/material/styles";
 import { fetchAllCategories } from "../features/categorySlice";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 const Search = styled("section")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -27,40 +29,53 @@ const Search = styled("section")(({ theme }) => ({
   width: "100%",
 }));
 function SearchBar() {
-  const products = useSelector((state) => state.products.value);
-  const state = useSelector((state) => state.categories.value);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const products = useSelector((state) => state.products?.value);
+  const categories = useSelector((state) => state.categories?.value);
   const dispatch = useDispatch();
-  const { value: categories } = state ?? {};
-
-  if (!categories?.length) {
+  const navigate = useNavigate();
+  if (!categories.length) {
     dispatch(fetchAllCategories());
   }
-
+  function handleCategoryChange(event) {
+    const { value } = event.target;
+    setSelectedCategory(value);
+    navigate(selectedCategory === "all" ? "/" : `/?category=${value}`);
+  }
   return (
     <Search>
       <Select
+        value={selectedCategory}
         size="small"
-        sx={{ m: 1, "&": {} }}
+        sx={{ m: 1, textTransform: "capitalize", "&": {} }}
         variant="standard"
         labelId="selected-Category"
         id="selected-category-id"
+        onChange={handleCategoryChange}
       >
-        <MenuItem key="all" value="all">all</MenuItem>
-        {
-          categories.map((category) => (
-            <MenuItem key={category} value={category}>
-              {category}
-            </MenuItem>
-            )
-          )
-        }
+        <MenuItem key="all" value="all" sx={{ textTransform: "capitalize" }}>
+          all
+        </MenuItem>
+        {categories?.map((category) => (
+          <MenuItem
+            key={category}
+            value={category}
+            sx={{ textTransform: "capitalize" }}
+          >
+            {category}
+          </MenuItem>
+        ))}
       </Select>
       <Autocomplete
         id="combo-box-demo"
-        options={products ? Array.from(products, (prod) => ({
-          id: prod.id,
-          label: prod.title,
-        })) : []}
+        options={
+          products
+            ? Array.from(products, (prod) => ({
+                id: prod.id,
+                label: prod.title,
+              }))
+            : []
+        }
         sx={{ width: 300 }}
         renderInput={(params) => <TextField {...params} label="products" />}
       />
